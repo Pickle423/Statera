@@ -1,9 +1,7 @@
-import nextcord, wavelink, time
+import nextcord, wavelink, datetime, time
 from nextcord.ext import commands, tasks
 
-p = None
-i = 0
-
+autodisconnect = {}
 class Music(commands.Cog):
     """Music cog to hold Wavelink related commands and listeners."""
 
@@ -39,34 +37,26 @@ class Music(commands.Cog):
             await player.play(next)
             return
         else:
-            global p
             p = player
-            global i
-            i = 0
+            ms = datetime.datetime.now()
+            autodisconnect[p] = (time.mktime(ms.timetuple()) * 1000)
             try:
                 await self.timeout.start()
             except:
                 pass
             return
 
-    #Disconnects after 10 minutes of activity
-    @tasks.loop(minutes=10)
+    #Disconnects after 10 minutes of activity. 600000 = 10 Minutes
+    @tasks.loop(minutes=1)
     async def timeout(self):
-        global i
-        global p
-        if p == None:
-            self.timeout.cancel()
-        elif not p.is_playing() and i == 1:
-            await p.disconnect()
-            p = None
-            self.timeout.cancel()
-        elif p.is_playing() or not p.queue.is_empty:
-            if i >= 1:
-                i = 0
-                p = None
-                self.timeout.cancel()
-        i = i + 1
- 
+        ms = datetime.datetime.now()
+        for p in list(autodisconnect):
+            if not p.is_playing() and (((time.mktime(ms.timetuple()) * 1000) - autodisconnect[p]) > 60000):
+                del autodisconnect[p]
+                await p.disconnect()
+            elif p.is_playing() or not p.queue.is_empty:
+                del autodisconnect[p]
+
     @commands.command(aliases=['continue','resume','re','res', 'p'])
     async def play(self, ctx: commands.Context, *, search: wavelink.YouTubeTrack = None):
         if search:
@@ -133,10 +123,6 @@ class Music(commands.Cog):
         vc: wavelink.Player = ctx.voice_client
         if not vc.queue.is_empty:
             vc.queue.clear()
-        try:
-            await self.timeout.cancel()
-        except:
-            pass
         await vc.disconnect()
         await ctx.message.add_reaction('⏏️')
 

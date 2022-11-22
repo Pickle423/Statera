@@ -54,11 +54,11 @@ class miscCommands(commands.Cog):
     @commands.command(name='version')
     async def version(self, context):
 
-        mainEmbed = nextcord.Embed(title="Kakapo Version Notes", description="SESO's Multi-Use Discord Bot", color=0x0E8643)
-        mainEmbed.add_field(name="Changes:", value=f"Added the !rename command for automatically generated voicechannels! Use !rename (anything) to change the designation of your channel from 'General' to anything of your choice! \n\nBot will now actually leave VC after a period of inactivity.")
-        mainEmbed.add_field(name="Version Code:", value="v1.1.2", inline=False)
-        mainEmbed.add_field(name="Date Released:", value="June 22nd, 2022", inline=False)
-        mainEmbed.set_footer(text="Kakapo written by Pickle423#0408, Dildo Sagbag#8107, Fletch#0617.")
+        mainEmbed = nextcord.Embed(title="Vito Version Notes", description="The Multi-Use Discord Bot", color=0x0E8643)
+        mainEmbed.add_field(name="Changes:", value=f"Began work on the bot!")
+        mainEmbed.add_field(name="Version Code:", value="v0.1.1", inline=False)
+        mainEmbed.add_field(name="Date Released:", value="November 21, 2022", inline=False)
+        mainEmbed.set_footer(text="Vito written by Pickle423#0408, Fletch#0617.")
 
         await context.message.channel.send(embed=mainEmbed)
 

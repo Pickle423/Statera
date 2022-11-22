@@ -1,8 +1,3 @@
-
-<p align="center">
-    <img src = "readme-media/logo.png">
-</p>
-
 # Placeholder
 Discord bot for the music and other various benefits.
 
