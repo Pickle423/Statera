@@ -1,13 +1,12 @@
 # Placeholder
-Discord bot for the music and other various benefits.
+Discord bot meant as an easy-to-use version of Katalam's AutoSlot Discordbot, as well as providing some other basic functionality.
 
 ## Features
+- Autoslot for Arma 3 and other slot-based mission games.
 - Provides moderation commands for admins
-- Sends a welcome message to new users
 - Supports YouTube video to audio/music streaming
-- Allows a Tenor Gif Filter
 - Provides miscellaneous commands for the users
-- Supports the option to send a Reaction Roles message.
+- Will soon support the option to send a Reaction Roles message.
 - Shiba...
 
 ## Commands
@@ -87,38 +86,8 @@ Locks the current Voice Channel
 `!unlock`<br/>
 Unlocks the current Voice Channel
 
-`!destroy`<br/>
-Deletes the current Voice Channel
-
 `!help`<br/>
 provides the User with the purpose of different commands
-
-`!ip`<br/>
-Provides the IP to the Arma 3 server
-
-`!time`<br/>
-either provides the current time or a time conversion
-
-`!modlist`<br/>
-Points to the modlist channel
-
-`!teamspeak`<br/>
-Points to the teamspeak info channel
-
-`!acre`<br/>
-points to the Acre2 info channel
-
-`!training`<br/>
-points to the training documents and manuals
-
-`!logo`<br/>
-Points to where a user can find info on joining the Arma 3 unit
-
-`!rules`<br/>
-Points to where the user can find the rules to the discord and in game.
-
-`!new`<br/>
-Gives the user information regarding the Discord Server.
 
 `!ping`<br/>
 Gives the user the Latency of the bot.
@@ -133,11 +102,10 @@ Simple calculator
 Rolls a die
 
 ## Installation
-To install it, your system needs the following dependencies on your project. Most of them can be installed with `pip` or the Python package manager of choice. The exception is `ffmpeg` which must be installed on your host as the Python package for ffmpeg is too old.
+To install it, your system needs the following dependencies on your project. Most of them can be installed with `pip` or the Python package manager of choice.
 
 ### Dependencies
 - Python 3.8
-- `ffmpeg`
 - `nextcord`
 - `PyNaCl`
 - `python-dotenv`
@@ -148,8 +116,8 @@ To install it, your system needs the following dependencies on your project. Mos
 Clone the project into a folder of your choice, enter it. In Unix it would be:
 
 ```shell
-user@hostname:~ $ git clone https://github.com/Uncle-Sagbag/Kakapo.git
-user@hostname:~ $ cd Kakapo
+user@hostname:~ $ git clone https://github.com/Pickle423/CommercialBot.git
+user@hostname:~ $ cd Statera
 ```
 
 ### Tokens
@@ -163,12 +131,6 @@ Paste the following tokens into your .env file. Feel free to change "example" to
 
 ```
 discord_token = "example"
-user_agent = "example"
-client_id = "example"
-client_secret = "example"
-redirect_uri = "example"
-username = "example"
-password = "example"
 ```
 
 Press `CTRL+X` then `Y` to save the file.
