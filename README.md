@@ -116,7 +116,7 @@ To install it, your system needs the following dependencies on your project. Mos
 Clone the project into a folder of your choice, enter it. In Unix it would be:
 
 ```shell
-user@hostname:~ $ git clone https://github.com/Pickle423/CommercialBot.git
+user@hostname:~ $ git clone https://github.com/Pickle423/Statera.git
 user@hostname:~ $ cd Statera
 ```
 
