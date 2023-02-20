@@ -10,12 +10,6 @@ class miscCommands(commands.Cog):
     async def ping(self, ctx):
         await ctx.send(f'Pong! {round(self.client.latency * 1000)}ms')
  
-    #Sus
-    @commands.command()
-    async def sus(self, ctx):
-        await ctx.channel.purge(limit=1)
-        await ctx.send('Silence', delete_after=3)
-
     @commands.command(aliases=['8ball', 'eightball'])
     async def _8ball(self, ctx, *, question):
         responses = ['It is certain.', 'It is decidedly so.', 'Without a doubt', 'Yes - definitely.', 'You may rely on it.', 'As I see it, yes.', 'Most likely.', 'Outlook good.', 'Yes.', 'Signs point to yes.', 'Reply hazy, try again.', 'Ask again later.', 'Better not tell you now.', 'Cannot predict now.', 'Concentrate and ask again.', "Don't count on it.", 'My reply is no.', 'My sources say no.', 'Outlook not so good.', 'Very doubtful.']
@@ -54,11 +48,11 @@ class miscCommands(commands.Cog):
     @commands.command(name='version')
     async def version(self, context):
 
-        mainEmbed = nextcord.Embed(title="Vito Version Notes", description="The Multi-Use Discord Bot", color=0x0E8643)
-        mainEmbed.add_field(name="Changes:", value=f"Began work on the bot!")
-        mainEmbed.add_field(name="Version Code:", value="v0.1.1", inline=False)
-        mainEmbed.add_field(name="Date Released:", value="November 21, 2022", inline=False)
-        mainEmbed.set_footer(text="Vito written by Pickle423#0408, Fletch#0617.")
+        mainEmbed = nextcord.Embed(title="Statera Version Notes", description="The Multi-Use Discord Bot", color=0x0E8643)
+        mainEmbed.add_field(name="Changes:", value=f"Slotting feature launches!")
+        mainEmbed.add_field(name="Version Code:", value="v0.5.1", inline=False)
+        mainEmbed.add_field(name="Date Released:", value="February 20, 2023", inline=False)
+        mainEmbed.set_footer(text="Statera written by Pickle423#0408 and Fletch#0617.")
 
         await context.message.channel.send(embed=mainEmbed)
 

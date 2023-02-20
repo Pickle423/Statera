@@ -55,6 +55,7 @@ class Moderation(commands.Cog):
                 await ctx.guild.unban(user)
                 await ctx.send(f'Unbanned {user.name}#{user.discriminator}')
                 return
+    '''
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def mute(self, ctx, *, member : nextcord.Member):
@@ -89,6 +90,6 @@ class Moderation(commands.Cog):
         with open("muted.txt", "w") as f:
             for element in muted:
                 f.write(element)
-
+    '''
 def setup(client):
     client.add_cog(Moderation(client))

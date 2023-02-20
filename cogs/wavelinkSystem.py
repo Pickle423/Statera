@@ -51,13 +51,13 @@ class Music(commands.Cog):
     async def timeout(self):
         ms = datetime.datetime.now()
         for p in list(autodisconnect):
-            if not p.is_playing() and (((time.mktime(ms.timetuple()) * 1000) - autodisconnect[p]) > 60000):
+            if not p.is_playing() and (((time.mktime(ms.timetuple()) * 1000) - autodisconnect[p]) > 600000):
                 del autodisconnect[p]
                 await p.disconnect()
             elif p.is_playing() or not p.queue.is_empty:
                 del autodisconnect[p]
 
-    @commands.command(aliases=['continue','resume','re','res', 'p'])
+    @commands.command(aliases=['continue','resume','re','res', 'p', 'unpause'])
     async def play(self, ctx: commands.Context, *, search: wavelink.YouTubeTrack = None):
         if search:
             #partial = wavelink.PartialTrack(query=search, cls=wavelink.YouTubeTrack)
