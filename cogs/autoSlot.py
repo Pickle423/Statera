@@ -25,6 +25,9 @@ class autoSlot(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def addMission(self, ctx, mission: str, date: str = "", time: str = ""):
         global database
+        if ctx.author.guild_permissions.manage_messages != True:
+                await ctx.send('You do not have permissions to create a mission')
+                return
         #Make channel name that is compatible with discord's channel restrctions
         c = nameconvert(mission)
         missionoriginal = mission
@@ -51,6 +54,9 @@ class autoSlot(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def addSlots(self, ctx, id, *, slots):
         global database
+        if ctx.author.guild_permissions.manage_messages != True:
+                await ctx.send('You do not have permissions to add slots to a mission.')
+                return
         try:
             if id not in database[str(ctx.guild.id)]['operations']:
                 await ctx.send("There is no mission present in the database with this ID.")
@@ -70,11 +76,11 @@ class autoSlot(commands.Cog):
         missionchannel = None
         cname = database[str(ctx.guild.id)]['operations'][id]['channelname']
         for c in categories:
-            if c.name == 'kakapo-missions':
+            if c.name == 'statera-missions':
                 missionscategory = c
                 break
         if missionscategory == None:
-            missionscategory = await server.create_category('kakapo-missions')
+            missionscategory = await server.create_category('statera-missions')
         else:
             for c in missionscategory.channels:
                 if c.name == (f"{id}-{cname}"):
@@ -139,7 +145,7 @@ class autoSlot(commands.Cog):
         database = update_dict(database, {str(ctx.guild.id) : {'operations' : {missionid : {'assignments' : {slotid : user.id}}}}})
         missionscategory = None
         for c in ctx.guild.categories:
-            if c.name == 'kakapo-missions':
+            if c.name == 'statera-missions':
                 missionscategory = c
                 break
         if missionscategory == None:
@@ -155,7 +161,7 @@ class autoSlot(commands.Cog):
         global database
         if database[str(ctx.guild.id)]['operations'].get(missionid) == None:
             await ctx.send(f"MissionID of {missionid} not found.")
-            return
+            return    
         grouplist = []
         slotdict = {}
         for group in database[str(ctx.guild.id)]['operations'][missionid]['groups']:
@@ -172,7 +178,7 @@ class autoSlot(commands.Cog):
         del database[str(ctx.guild.id)]['operations'][missionid]['assignments'][slotid]
         missionscategory = None
         for c in ctx.guild.categories:
-            if c.name == 'kakapo-missions':
+            if c.name == 'statera-missions':
                 missionscategory = c
                 break
         if missionscategory == None:
@@ -192,7 +198,7 @@ class autoSlot(commands.Cog):
             return
         missionscategory = None
         for c in ctx.guild.categories:
-            if c.name == 'kakapo-missions':
+            if c.name == 'statera-missions':
                 missionscategory = c
                 break
         if missionscategory != None:
