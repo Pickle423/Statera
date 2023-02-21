@@ -62,6 +62,9 @@ Simple calculator
 Rolls a die
 
 ##FAQ (We're lying no one's asked us anything):<br/>
+Why is the prefix ?:<br/>
+I don't know any bots that use it, and I don't feel like coding a selection option right now. If you have a conflict, your options are to cope and/or pick a side you yellow-bellied fuck.
+
 Why is the slot functionality done with slash-commands, I hate slash-commands:<br/>
 I hate them too, but I felt like it.
 
