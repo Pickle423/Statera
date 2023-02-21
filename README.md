@@ -62,7 +62,7 @@ Simple calculator
 Rolls a die
 
 ##FAQ (We're lying no one's asked us anything):
-Why is the slot functionality done with slash-commands, I hate slash-commands.:
+Why is the slot functionality done with slash-commands, I hate slash-commands:
 
 I hate them too, but I felt like it.
 
