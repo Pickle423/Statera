@@ -13,7 +13,7 @@ load_dotenv()
 ## logging.basicConfig(level=logging.INFO)
 
 # bot commands have prefix ! so all messages start with ! will trigger the bot commands
-client = commands.Bot(command_prefix='!', intents=intents, help_command = None, case_insensitive=True)
+client = commands.Bot(command_prefix='?', intents=intents, help_command = None, case_insensitive=True)
 
 # when the bot is initialized it will print has connected to the terminal
 @client.event

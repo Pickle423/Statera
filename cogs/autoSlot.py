@@ -1,6 +1,6 @@
 import nextcord, sys, datetime, json, collections, os.path
 from nextcord.ext import commands
-
+from typing import Optional
 global database
 database = {}
 #autoSlot Cog
@@ -21,60 +21,57 @@ class autoSlot(commands.Cog):
                 with open(f'{origin}/jsons/ASServers/{file}') as json_file:
                     database = update_dict(database, {parts[0] : json.load(json_file)})
 
-    @commands.command(name = "addMission", help = "Adds a new mission with given name. Use quotations for multi-word names")
+    @nextcord.slash_command(name='addmission',description="Admin Only, create missions.")
     @commands.has_permissions(administrator=True)
     async def addMission(self, ctx, mission: str, date: str = "", time: str = ""):
+        await ctx.response.defer()
         global database
-        if ctx.author.guild_permissions.manage_messages != True:
-                await ctx.send('You do not have permissions to create a mission')
-                return
         #Make channel name that is compatible with discord's channel restrctions
         c = nameconvert(mission)
         missionoriginal = mission
+        reply = ""
         if (mission != c):
-            await ctx.send("{} Your mission's channel will be renamed from {} to {}".format(ctx.author.mention, mission, c))
+            reply = "Your mission's channel will be renamed from {} to {} \n".format(mission, c)
             mission = c
-        if str(ctx.guild.id) not in database:
-            database.update({str(ctx.guild.id) : {'operations' : {}}})
+        if str(ctx.guild_id) not in database:
+            database.update({str(ctx.guild_id) : {'operations' : {}}})
         mission_id = None
         for i in range(1, 11):
-            if str(i) not in database[str(ctx.guild.id)]['operations']:
+            if str(i) not in database[str(ctx.guild_id)]['operations']:
                 mission_id = str(i)
                 break
         else:
             await ctx.send("There are currently 10 active missions on ID's 1-10. Please delete old missions.")
             return
-        database[str(ctx.guild.id)]['operations'].update({mission_id : {'groups' : {},'assignments' : {}, 'channelname' : mission, 'name' : missionoriginal,'author' : ctx.author.id,'date' : date,'time' : time} })
+        database[str(ctx.guild_id)]['operations'].update({mission_id : {'groups' : {},'assignments' : {}, 'channelname' : mission, 'name' : missionoriginal,'author' : ctx.user.id,'date' : date,'time' : time} })
 
-        send_message = "{} Your mission ID for {} is: {}".format(ctx.author.mention, mission, mission_id)
-        await ctx.send(send_message)
-        saveData(str(ctx.guild.id))
+        send_message = reply + "Your mission ID for {} is: {}".format(mission, mission_id)
+        await ctx.followup.send(send_message)
+        saveData(str(ctx.guild_id))
 
-    @commands.command(name = "addslots")
+    @nextcord.slash_command(name='addslots',description="Admin Only, add slots to an existing mission.")
     @commands.has_permissions(administrator=True)
     async def addSlots(self, ctx, id, *, slots):
+        await ctx.response.defer()
         global database
-        if ctx.author.guild_permissions.manage_messages != True:
-                await ctx.send('You do not have permissions to add slots to a mission.')
-                return
         try:
-            if id not in database[str(ctx.guild.id)]['operations']:
-                await ctx.send("There is no mission present in the database with this ID.")
+            if id not in database[str(ctx.guild_id)]['operations']:
+                await ctx.followup.send("There is no mission present in the database with this ID.")
                 return
         except:
-            await ctx.send("A problem occured with the mission id.")
+            await ctx.followup.send("A problem occured with the mission id.")
             return
         grouplist, groupdict = parser(slots)
         if grouplist == False:
-            await ctx.send("Your request did not match the required formatting, please check your input for issues.")
+            await ctx.followup.send("Your request did not match the required formatting, please check your input for issues.")
             return
-        backup = database[str(ctx.guild.id)]['operations'][id]['groups']
-        database = update_dict(database, {str(ctx.guild.id) : {'operations' : {id : {'groups' : groupdict}}}})
+        backup = database[str(ctx.guild_id)]['operations'][id]['groups']
+        database = update_dict(database, {str(ctx.guild_id) : {'operations' : {id : {'groups' : groupdict}}}})
         server = ctx.guild
         categories = server.categories
         missionscategory = None
         missionchannel = None
-        cname = database[str(ctx.guild.id)]['operations'][id]['channelname']
+        cname = database[str(ctx.guild_id)]['operations'][id]['channelname']
         for c in categories:
             if c.name == 'statera-missions':
                 missionscategory = c
@@ -90,15 +87,15 @@ class autoSlot(commands.Cog):
             missionchannel = await missionscategory.create_text_channel(f'{id}-{cname}')
             message = preparemessage(ctx, id, grouplist)
             if message == None:
-                database[str(ctx.guild.id)]['operations'][id]['groups'] = {}
-                await ctx.send("Please limit the length of a slotname to 25, the number of slots in a single group to 20, and the number of groups to 10.")
+                database[str(ctx.guild_id)]['operations'][id]['groups'] = {}
+                await ctx.followup.send("Please limit the length of a slotname to 25, the number of slots in a single group to 20, and the number of groups to 10.")
                 return
             await missionchannel.send(embed=message)
         else:
             message = preparemessage(ctx, id, grouplist)
             if message == None:
-                database[str(ctx.guild.id)]['operations'][id]['groups'] = backup
-                await ctx.send("Please limit the length of a slotname to 25, the number of slots in a single group to 20, and the number of groups to 10.")
+                database[str(ctx.guild_id)]['operations'][id]['groups'] = backup
+                await ctx.followup.send("Please limit the length of a slotname to 25, the number of slots in a single group to 20, and the number of groups to 10.")
                 return
             if await missionchannel.history().get(author__id = self.client.user.id) != None:
                 m = await missionchannel.history().get(author__id = self.client.user.id)
@@ -109,92 +106,97 @@ class autoSlot(commands.Cog):
             if len(message) > 2000:
                 print(message)
                 print(len(message))
-                database[str(ctx.guild.id)]['operations'][id]['groups'] = backup
+                database[str(ctx.guild_id)]['operations'][id]['groups'] = backup
                 await ctx.send("The requested mission would surpass the Discord character limit, or leave no room for roles to be selected.")
                 return
             '''
             await m.edit(embed=message)
-        saveData(str(ctx.guild.id))
+        await ctx.followup.send("Slots added.")
+        saveData(str(ctx.guild_id))
 
-    @commands.command(aliases=['takeslot', 'claimslot', 'cslot', 'tslot', 'slot','assignslot'])
-    async def aslot(self, ctx, missionid, slotid, target=None):
+    @nextcord.slash_command(name='slot',description="Assign yourself to a slot, admins can assign others to a slot by mentioning them.")
+    async def aslot(self, ctx, missionid, slotid, target: Optional[str] = nextcord.SlashOption(required=False)):
+        await ctx.response.defer()
         global database
-        user = ctx.author
+        user = ctx.user
         if target != None:
-            if ctx.author.guild_permissions.manage_messages != True:
-                await ctx.send('You do not have permissions to remove the slot of someone other than yourself.')
+            if ctx.user.guild_permissions.manage_messages != True:
+                await ctx.followup.send('You do not have permissions to remove the slot of someone other than yourself.')
                 return
             user = ctx.guild.get_member(int(target.translate({ord(i): None for i in '@<>'})))
             if user == None:
-                await ctx.send("Failed to find user.")         
-        if database[str(ctx.guild.id)]['operations'].get(missionid) == None:
-            await ctx.send(f"MissionID of {missionid} not found.")
+                await ctx.followup.send("Failed to find user.")         
+        if database[str(ctx.guild_id)]['operations'].get(missionid) == None:
+            await ctx.followup.send(f"MissionID of {missionid} not found.")
             return
         grouplist = []
         slotdict = {}
-        for group in database[str(ctx.guild.id)]['operations'][missionid]['groups']:
+        for group in database[str(ctx.guild_id)]['operations'][missionid]['groups']:
             grouplist.append(group)
         for group in grouplist:
-            slotdict.update(database[str(ctx.guild.id)]['operations'][missionid]['groups'][group])
+            slotdict.update(database[str(ctx.guild_id)]['operations'][missionid]['groups'][group])
         if slotdict.get(slotid) == None:
-            await ctx.send("Slot not found.")
+            await ctx.followup.send("Slot not found.")
             return
-        if database[str(ctx.guild.id)]['operations'][missionid]['assignments'].get(slotid) != None:
-            await ctx.send("Please remove the person from this slot before trying to claim it.")
+        if database[str(ctx.guild_id)]['operations'][missionid]['assignments'].get(slotid) != None:
+            await ctx.followup.send("Please remove the person from this slot before trying to claim it.")
         #Update method we were using to avoid this broke for some reason so now we have this.
-        database = update_dict(database, {str(ctx.guild.id) : {'operations' : {missionid : {'assignments' : {slotid : user.id}}}}})
+        database = update_dict(database, {str(ctx.guild_id) : {'operations' : {missionid : {'assignments' : {slotid : user.id}}}}})
         missionscategory = None
         for c in ctx.guild.categories:
             if c.name == 'statera-missions':
                 missionscategory = c
                 break
         if missionscategory == None:
-            await ctx.send("No channel can be found for this mission can be found. Have roles been added yet?")
+            await ctx.followup.send("No channel can be found for this mission can be found. Have roles been added yet?")
             return
-        channel = nextcord.utils.get(ctx.guild.channels, name=f"{missionid}-{database[str(ctx.guild.id)]['operations'][missionid]['channelname']}", category=missionscategory)
+        channel = nextcord.utils.get(ctx.guild.channels, name=f"{missionid}-{database[str(ctx.guild_id)]['operations'][missionid]['channelname']}", category=missionscategory)
         m = await channel.history().get(author__id = self.client.user.id)
         await m.edit(embed=preparemessage(ctx, missionid, grouplist))
-        saveData(str(ctx.guild.id))
+        await ctx.followup.send("Slot assigned.")
+        saveData(str(ctx.guild_id))
 
-    @commands.command(aliases=['deslot','removeslot'])
+    @nextcord.slash_command(name='rslot',description="Remove an assignment from a slot.")
     async def rslot(self, ctx, missionid, slotid):
+        await ctx.response.defer()
         global database
-        if database[str(ctx.guild.id)]['operations'].get(missionid) == None:
-            await ctx.send(f"MissionID of {missionid} not found.")
+        if database[str(ctx.guild_id)]['operations'].get(missionid) == None:
+            await ctx.followup.send(f"MissionID of {missionid} not found.")
             return    
         grouplist = []
         slotdict = {}
-        for group in database[str(ctx.guild.id)]['operations'][missionid]['groups']:
+        for group in database[str(ctx.guild_id)]['operations'][missionid]['groups']:
             grouplist.append(group)
         for group in grouplist:
-            slotdict.update(database[str(ctx.guild.id)]['operations'][missionid]['groups'][group])
+            slotdict.update(database[str(ctx.guild_id)]['operations'][missionid]['groups'][group])
         if slotdict.get(slotid) == None:
-            await ctx.send("Slot not found.")
+            await ctx.followup.send("Slot not found.")
             return
-        if database[str(ctx.guild.id)]['operations'][missionid]['assignments'].get(slotid) != ctx.author.id:
-            if ctx.author.guild_permissions.manage_messages != True:
-                await ctx.send('You do not have permissions to remove the slot of someone other than yourself.')
+        if database[str(ctx.guild_id)]['operations'][missionid]['assignments'].get(slotid) != ctx.user.id:
+            if ctx.user.guild_permissions.manage_messages != True:
+                await ctx.followup.send('You do not have permissions to remove the slot of someone other than yourself.')
                 return
-        del database[str(ctx.guild.id)]['operations'][missionid]['assignments'][slotid]
+        del database[str(ctx.guild_id)]['operations'][missionid]['assignments'][slotid]
         missionscategory = None
         for c in ctx.guild.categories:
             if c.name == 'statera-missions':
                 missionscategory = c
                 break
         if missionscategory == None:
-            await ctx.send("No channel can be found for this mission can be found. Have roles been added yet?")
+            await ctx.followup.send("No channel can be found for this mission can be found. Have roles been added yet?")
             return
-        channel = nextcord.utils.get(ctx.guild.channels, name=f"{missionid}-{database[str(ctx.guild.id)]['operations'][missionid]['channelname']}", category=missionscategory)
+        channel = nextcord.utils.get(ctx.guild.channels, name=f"{missionid}-{database[str(ctx.guild_id)]['operations'][missionid]['channelname']}", category=missionscategory)
         m = await channel.history().get(author__id = self.client.user.id)
         await m.edit(embed=preparemessage(ctx, missionid, grouplist))
-        saveData(str(ctx.guild.id))
+        await ctx.followup.send("Slot removed.")
+        saveData(str(ctx.guild_id))
 
-    @commands.command(aliases=['delmission', 'delmis', 'rmmission', 'removemission'])
+    @nextcord.slash_command(name='deletemission',description="Admin only, delete a mission.")
     @commands.has_permissions(administrator=True)
     async def deletemission(self, ctx, id):
         global database
-        if database[str(ctx.guild.id)]['operations'].get(id) == None:
-            await ctx.send("No mission found with that ID.")
+        if database[str(ctx.guild_id)]['operations'].get(id) == None:
+            await ctx.followup.send("No mission found with that ID.")
             return
         missionscategory = None
         for c in ctx.guild.categories:
@@ -202,13 +204,13 @@ class autoSlot(commands.Cog):
                 missionscategory = c
                 break
         if missionscategory != None:
-            channel = nextcord.utils.get(ctx.guild.channels, name=f"{id}-{database[str(ctx.guild.id)]['operations'][id]['channelname']}", category=missionscategory)
+            channel = nextcord.utils.get(ctx.guild.channels, name=f"{id}-{database[str(ctx.guild_id)]['operations'][id]['channelname']}", category=missionscategory)
             if channel != None:
                 await channel.delete()
-                await ctx.send("Channel deleted.")
-        del database[str(ctx.guild.id)]['operations'][id]
-        await ctx.send(f"{ctx.author.mention}Mission removed!")
-        saveData(str(ctx.guild.id))
+                await ctx.followup.send("Channel deleted.")
+        del database[str(ctx.guild_id)]['operations'][id]
+        await ctx.response.send_message("Mission removed!")
+        saveData(str(ctx.guild_id))
 
 #Centralized function for saving data.
 def saveData(server):
@@ -220,33 +222,33 @@ def saveData(server):
 def preparemessage(ctx, id, grouplist):
     #Convert to produce embed, with fields acting as group. Character limit is 1024, so limit groups to be 500.
     slots = ""
-    assignments = database[str(ctx.guild.id)]['operations'][id]['assignments']
-    slotEmbed = nextcord.Embed(title=f"{database[str(ctx.guild.id)]['operations'][id]['name']}", description=f"By: {ctx.guild.get_member(database[str(ctx.guild.id)]['operations'][id]['author']).mention} \n {database[str(ctx.guild.id)]['operations'][id]['date']}, {database[str(ctx.guild.id)]['operations'][id]['time']}", color=0x0E8643)
+    assignments = database[str(ctx.guild_id)]['operations'][id]['assignments']
+    slotEmbed = nextcord.Embed(title=f"{database[str(ctx.guild_id)]['operations'][id]['name']}", description=f"By: {ctx.guild.get_member(database[str(ctx.guild_id)]['operations'][id]['author']).mention} \n {database[str(ctx.guild_id)]['operations'][id]['date']}, {database[str(ctx.guild_id)]['operations'][id]['time']}", color=0x6082B6)
     if len(grouplist) > 10:
         return None
     for group in grouplist:
         slots = ""
-        slotdict = database[str(ctx.guild.id)]['operations'][id]['groups'][group]
+        slotdict = database[str(ctx.guild_id)]['operations'][id]['groups'][group]
         if len(slotdict) > 20:
             return None
         for slot in slotdict:
             if len(slot) > 25:
                 return None
             if assignments.get(slot) == None:
-                slots = slots + (f"{slot}: {database[str(ctx.guild.id)]['operations'][id]['groups'][group][slot]}\n")
+                slots = slots + (f"{slot}: {database[str(ctx.guild_id)]['operations'][id]['groups'][group][slot]}\n")
             else:
-                slots = slots + (f"{slot}: {database[str(ctx.guild.id)]['operations'][id]['groups'][group][slot]} - {ctx.guild.get_member(assignments.get(slot)).mention}\n")
+                slots = slots + (f"{slot}: {database[str(ctx.guild_id)]['operations'][id]['groups'][group][slot]} - {ctx.guild.get_member(assignments.get(slot)).mention}\n")
         slotEmbed.add_field(name=group, value=slots, inline=False)
     '''
     for group in grouplist:
         slots = slots + (f"\n**{group}:**\n")
-        slotdict = database[str(ctx.guild.id)]['operations'][id]['groups'][group]
+        slotdict = database[str(ctx.guild_id)]['operations'][id]['groups'][group]
         for slot in slotdict:
             if assignments.get(slot) == None:
-                slots = slots + (f"{slot}: {database[str(ctx.guild.id)]['operations'][id]['groups'][group][slot]}\n")
+                slots = slots + (f"{slot}: {database[str(ctx.guild_id)]['operations'][id]['groups'][group][slot]}\n")
             else:
-                slots = slots + (f"{slot}: {database[str(ctx.guild.id)]['operations'][id]['groups'][group][slot]} - {ctx.guild.get_member(assignments.get(slot)).mention}\n")
-    message = f"{database[str(ctx.guild.id)]['operations'][id]['name']} \n By: {ctx.guild.get_member(database[str(ctx.guild.id)]['operations'][id]['author']).mention} \n {database[str(ctx.guild.id)]['operations'][id]['date']}, {database[str(ctx.guild.id)]['operations'][id]['time']} \n {slots}"
+                slots = slots + (f"{slot}: {database[str(ctx.guild_id)]['operations'][id]['groups'][group][slot]} - {ctx.guild.get_member(assignments.get(slot)).mention}\n")
+    message = f"{database[str(ctx.guild_id)]['operations'][id]['name']} \n By: {ctx.guild.get_member(database[str(ctx.guild_id)]['operations'][id]['author']).mention} \n {database[str(ctx.guild_id)]['operations'][id]['date']}, {database[str(ctx.guild_id)]['operations'][id]['time']} \n {slots}"
     return message
     '''
     return slotEmbed
