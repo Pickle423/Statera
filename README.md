@@ -133,7 +133,7 @@ Paste the following tokens into your .env file. Feel free to change "example" to
 discord_token = "example"
 ```
 
-Press `CTRL+X` then `Y` to save the file.
+Press `CTRL+O` then `CNTRL+X` to save the file.
 
 ### Execution
 Running the bot is as simple as `python3 bot.py` inside the project folder. If that fails, make sure the tokens in .env are correct. If you want the bot to run in the background, install a package like `screen` or `termux` so there can be a terminal running in the background. Refer to those packages on how to set it up.
