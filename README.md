@@ -61,15 +61,14 @@ Simple calculator
 `?dice`<br/>
 Rolls a die
 
-##FAQ (We're lying no one's asked us anything):
-Why is the slot functionality done with slash-commands, I hate slash-commands:
-
+##FAQ (We're lying no one's asked us anything):<br/>
+Why is the slot functionality done with slash-commands, I hate slash-commands:<br/>
 I hate them too, but I felt like it.
 
-Your code sucks:
+Your code sucks:<br/>
 Yeah. We're both novice python ""developers.""
 
-I hate this Fletch guy:
+I hate this Fletch guy:<br/>
 So do I.
 
 ## Installation
