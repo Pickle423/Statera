@@ -1,4 +1,9 @@
-# Placeholder
+<p align="center">
+    <img src = "STScI-01FS23JYK43CRGYMQQHE1ZVE8C.png">
+</p>
+
+
+# Statera
 Discord bot meant as an easy-to-use version of Katalam's AutoSlot Discordbot, as well as providing some other basic functionality.
 
 ## Features
