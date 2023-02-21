@@ -74,39 +74,7 @@ Yeah. We're both novice python ""developers.""
 I hate this Fletch guy:<br/>
 So do I.
 
-## Installation
-To install it, your system needs the following dependencies on your project. Most of them can be installed with `pip` or the Python package manager of choice.
+## Invite link:
+https://discord.com/api/oauth2/authorize?client_id=1044392710695551058&permissions=8&scope=bot
 
-### Dependencies
-- Python 3.8
-- `nextcord`
-- `PyNaCl`
-- `python-dotenv`
-- `youtube-search-python`
-- `yt-dlp`
-
-### Setup
-Clone the project into a folder of your choice, enter it. In Unix it would be:
-
-```shell
-user@hostname:~ $ git clone https://github.com/Pickle423/Statera.git
-user@hostname:~ $ cd Statera
-```
-
-### Tokens
-Tokens are sourced from `.env`. Create `.env` in the project folder.
-
-```shell
-user@hostname:~ $ nano .env
-```
-
-Paste the following tokens into your .env file. Feel free to change "example" to something else. Make sure you keep the quotation marks.
-
-```
-discord_token = "example"
-```
-
-Press `CTRL+O` then `CNTRL+X` to save the file.
-
-### Execution
-Running the bot is as simple as `python3 bot.py` inside the project folder. If that fails, make sure the tokens in .env are correct. If you want the bot to run in the background, install a package like `screen` or `termux` so there can be a terminal running in the background. Refer to those packages on how to set it up.
+It needs admin to create the channels, if you just want it for the music system use vexera or something idk. I wouldn't trust me either.
