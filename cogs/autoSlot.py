@@ -211,6 +211,13 @@ class autoSlot(commands.Cog):
         del database[str(ctx.guild_id)]['operations'][id]
         await ctx.response.send_message("Mission removed!")
         saveData(str(ctx.guild_id))
+    
+    @nextcord.slash_command(name='missions',description="List missions active in server.")
+    async def missions(self, ctx):
+        embed = nextcord.Embed(title=f"{str(ctx.guild.name)}'s Missions:", description=f"Called by: {ctx.user.name}")
+        for mission in database[str(ctx.guild_id)]['operations']:
+            embed.add_field(name=f"{mission}-{database[str(ctx.guild_id)]['operations'][mission]['name']}", value=f"By: {nextcord.utils.get(ctx.guild.members, id=database[str(ctx.guild_id)]['operations'][mission]['author'])}", inline=False)
+        await ctx.response.send_message(embed=embed)
 
 #Centralized function for saving data.
 def saveData(server):
