@@ -20,6 +20,8 @@ class miscCommands(commands.Cog):
     async def calculate(self, ctx, query_first, query_operator, query_second):
         query_first = int(query_first)
         query_second = int(query_second)
+        if query_first > 9999999999 or query_second > 9999999999:
+            await ctx.send("Request to high.")
         if (query_operator) == ('+'):
             await ctx.send(query_first + query_second)
         elif (query_operator) == ('-'):
@@ -64,6 +66,12 @@ class miscCommands(commands.Cog):
         except:
             operatorisdicecount = False
         max = int(max)
+        if operatorisdicecount == True and operator > 10:
+            await ctx.send("Please limit the number of dice to 10.")
+            return
+        elif int(operatornumber) > 1000 or max > 1000:
+            await ctx.send("Please limit numbers to less than 1000.")
+            return
         if operatorisdicecount == True:
             whileloop = 0
             diceresults = []
