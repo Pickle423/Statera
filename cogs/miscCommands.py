@@ -51,9 +51,9 @@ class miscCommands(commands.Cog):
     async def version(self, context):
 
         mainEmbed = nextcord.Embed(title="Statera Version Notes", description="The Multi-Use Discord Bot", color=0x0E8643)
-        mainEmbed.add_field(name="Changes:", value=f"Slotting feature launches!")
-        mainEmbed.add_field(name="Version Code:", value="v0.5.1", inline=False)
-        mainEmbed.add_field(name="Date Released:", value="February 20, 2023", inline=False)
+        mainEmbed.add_field(name="Changes:", value=f"Welcome message added!")
+        mainEmbed.add_field(name="Version Code:", value="v0.7.1", inline=False)
+        mainEmbed.add_field(name="Date Released:", value="April, 1 2023", inline=False)
         mainEmbed.set_footer(text="Statera written by Pickle423#0408 and Fletch#0617.")
 
         await context.message.channel.send(embed=mainEmbed)
