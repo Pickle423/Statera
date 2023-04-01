@@ -23,7 +23,6 @@ class WelcomeMessage(commands.Cog):
             message = message.format(**namespace)
         except:
             return
-        print(message)
         await channel.send(message)
 
 
@@ -38,13 +37,13 @@ class WelcomeMessage(commands.Cog):
         except:       
             channel = nextcord.utils.get(ctx.guild.text_channels, name=channel)
         if channel == None:
-            return ctx.followup.send("Failed to find named channel, try an ID.")
+            return await ctx.followup.send("Failed to find named channel, try an ID.")
         #Try the formatting done at time of use to make sure unauthorized keys aren't in place.
         try:
             namespace = {'mention' : 'test', 'username' : 'test', 'server' : 'test'}
             message.format(**namespace)
         except:
-            return ctx.followup.send('Unauthorized keys used, you are limited to mention, username, and server.')
+            return await ctx.followup.send('Unauthorized keys used, you are limited to mention, username, and server.')
         guilddata['channel'] = channel.id
         guilddata['message'] = message
         self.saveData(ctx.guild.id, guilddata)
