@@ -23,7 +23,6 @@ class autoSlot(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def addMission(self, ctx, mission_name: str, mission_timestamp: Optional[int] = nextcord.SlashOption(required=False)):
         await ctx.response.defer()
-        print(mission_timestamp)
         if mission_timestamp == None:
             mission_timestamp = 1
         if str(ctx.guild_id) not in self.database:
