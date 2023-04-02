@@ -21,8 +21,11 @@ class autoSlot(commands.Cog):
 
     @nextcord.slash_command(name='addmission',description="Admin Only, create missions.")
     @commands.has_permissions(administrator=True)
-    async def addMission(self, ctx, mission_name: str, mission_timestamp: int):
+    async def addMission(self, ctx, mission_name: str, mission_timestamp: Optional[int] = nextcord.SlashOption(required=False)):
         await ctx.response.defer()
+        print(mission_timestamp)
+        if mission_timestamp == None:
+            mission_timestamp = 1
         if str(ctx.guild_id) not in self.database:
             self.database.update({str(ctx.guild_id) : {'operations' : {}}})
         mission_id = None
@@ -38,6 +41,7 @@ class autoSlot(commands.Cog):
 
 
         # Warn user that mission name is converted for discord channel restrictions
+        reply = ''
         if (mission_name != mission_name_converted):
             reply = "Your mission's channel will be renamed from {} to {} \n".format(mission_name, mission_name_converted)
 
@@ -83,7 +87,11 @@ class autoSlot(commands.Cog):
 
         # If no roster_category is found, create it
         if roster_category == None:
-            roster_category = await ctx.guild.create_category('statera-rosters')
+            overwrites = {
+                    ctx.guild.default_role: nextcord.PermissionOverwrite(send_messages=False),
+                    ctx.guild.me: nextcord.PermissionOverwrite(send_messages=True)
+                    }
+            roster_category = await ctx.guild.create_category('statera-rosters', overwrites=overwrites)
 
         # Once created, look for the mission channel. Otherwise, create it
         for channel in roster_category.channels:
@@ -301,9 +309,13 @@ class autoSlot(commands.Cog):
     def embedGroupsToRoster(self,ctx, mission_id, group_dict):
         slots = ""
         assignments = self.database[str(ctx.guild_id)]['operations'][mission_id]['assignments']
-        long_mission_timestamp = "<t:" + str(self.database[str(ctx.guild_id)]['operations'][mission_id]['mission_timestamp']) + ":F>" #nextcord.utils.format_dt(self.database[str(ctx.guild_id)]['operations'][mission_id]['mission_timestamp'], style="F")
-        relative_mission_timestamp = "<t:" + str(self.database[str(ctx.guild_id)]['operations'][mission_id]['mission_timestamp']) + ":R>" #nextcord.utils.format_dt(self.database[str(ctx.guild_id)]['operations'][mission_id]['mission_timestamp'], style="R")
-        slot_embed = nextcord.Embed(title=f"{self.database[str(ctx.guild_id)]['operations'][mission_id]['name']}", description=f"By: {ctx.guild.get_member(self.database[str(ctx.guild_id)]['operations'][mission_id]['author']).mention}\n {long_mission_timestamp}, {relative_mission_timestamp}\n Mission ID: {mission_id}", color=0x0E8643)
+        if self.database[str(ctx.guild_id)]['operations'][mission_id]['mission_timestamp'] != 1:
+            long_mission_timestamp = "<t:" + str(self.database[str(ctx.guild_id)]['operations'][mission_id]['mission_timestamp']) + ":F>" #nextcord.utils.format_dt(self.database[str(ctx.guild_id)]['operations'][mission_id]['mission_timestamp'], style="F")
+            relative_mission_timestamp = "<t:" + str(self.database[str(ctx.guild_id)]['operations'][mission_id]['mission_timestamp']) + ":R>" #nextcord.utils.format_dt(self.database[str(ctx.guild_id)]['operations'][mission_id]['mission_timestamp'], style="R")
+            slot_embed = nextcord.Embed(title=f"{self.database[str(ctx.guild_id)]['operations'][mission_id]['name']}", description=f"By: {ctx.guild.get_member(self.database[str(ctx.guild_id)]['operations'][mission_id]['author']).mention}\n {long_mission_timestamp}, {relative_mission_timestamp}\n Mission ID: {mission_id}", color=0x0E8643)
+        else:
+            slot_embed = nextcord.Embed(title=f"{self.database[str(ctx.guild_id)]['operations'][mission_id]['name']}", description=f"By: {ctx.guild.get_member(self.database[str(ctx.guild_id)]['operations'][mission_id]['author']).mention}\n Mission ID: {mission_id}", color=0x0E8643)
+        
         if len(group_dict) > 10:
             return None
         for group in group_dict:
