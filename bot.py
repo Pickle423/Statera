@@ -38,7 +38,7 @@ async def unload(ctx, extension):
 @client.command()
 async def reload(ctx, extension):
         if ctx.message.author.id != 267469338557153300:
-         return
+            return
         if extension == "all" or extension == "All":
             for filename in os.listdir('./cogs'):
                 try:
