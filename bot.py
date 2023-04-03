@@ -22,20 +22,23 @@ async def on_ready():
 
 #Cogs Loader
 @client.command()
-@commands.has_permissions(administrator=True)
 async def load(ctx, extension):
+    if ctx.message.author.id != 267469338557153300:
+         return
     client.load_extension(f'cogs.{extension}')
     print(f"Successfully loaded cogs.{extension}")
 
 @client.command()
-@commands.has_permissions(administrator=True)
 async def unload(ctx, extension):
+        if ctx.message.author.id != 267469338557153300:
+            return
         client.unload_extension(f'cogs.{extension}')
         print(f"Successfully unloaded cogs.{extension}")
 
 @client.command()
-@commands.has_permissions(administrator=True)
 async def reload(ctx, extension):
+        if ctx.message.author.id != 267469338557153300:
+         return
         if extension == "all" or extension == "All":
             for filename in os.listdir('./cogs'):
                 try:
