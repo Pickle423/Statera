@@ -19,7 +19,7 @@ class WelcomeMessage(commands.Cog):
         channel = self.client.get_channel(guilddata['channel'])
         message = guilddata['message']
         try:
-            namespace = {'mention' : member.mention, 'username' : member.name, 'server' : member.guild.name}
+            namespace = {'mention' : member.mention, 'username' : member.name, 'server' : member.guild.name, 'nl' : '\n', 'newline' : '\n'}
             message = message.format(**namespace)
         except:
             return
@@ -40,7 +40,7 @@ class WelcomeMessage(commands.Cog):
             return await ctx.followup.send("Failed to find named channel, try an ID.")
         #Try the formatting done at time of use to make sure unauthorized keys aren't in place.
         try:
-            namespace = {'mention' : 'test', 'username' : 'test', 'server' : 'test'}
+            namespace = {'mention' : 'test', 'username' : 'test', 'server' : 'test', 'nl' : 'test', 'newline' : 'test'}
             message.format(**namespace)
         except:
             return await ctx.followup.send('Unauthorized keys used, you are limited to mention, username, and server.')
