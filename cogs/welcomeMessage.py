@@ -1,5 +1,6 @@
 import nextcord, os, json
 from nextcord.ext import commands
+from typing import Optional
 
 #welcomeMessage Cog
 class WelcomeMessage(commands.Cog):
@@ -24,22 +25,32 @@ class WelcomeMessage(commands.Cog):
         except:
             return
         await channel.send(message)
+        if 'role' in guilddata:
+            roleobj = nextcord.utils.get(member.guild.roles, id = guilddata['role'])
+            if roleobj == None:
+                return
+            await member.add_roles(roleobj)
 
 
     @nextcord.slash_command(name='welcome',description="Set's the server's welcome message.")
     @commands.has_permissions(administrator=True)
-    async def setMessage(self, ctx, channel: str, message: str):
+    async def setMessage(self, ctx, channel: str, message: str, role: Optional[str] = nextcord.SlashOption(required=False)):
         if len(message) > 1500:
             return await ctx.response.send_message('Message is too long, please limit yourself to 1500 characters.')
         await ctx.response.defer()
         guilddata = dict()
+        if role != None:
+            roleobj = nextcord.utils.get(ctx.guild.roles, name = role)
+            if roleobj == None:
+                return await ctx.followup.send("Role not found, please ensure the role exists. If necessary, try a simpler name.")
+            guilddata['role'] = roleobj.id
         try:
             intc = int(channel)
             channel = nextcord.utils.get(ctx.guild.text_channels, id=intc)
         except:       
             channel = nextcord.utils.get(ctx.guild.text_channels, name=channel)
         if channel == None:
-            return await ctx.followup.send("Failed to find named channel, try an ID.")
+            return await ctx.followup.send("Failed to find named channel, check spelling or try an ID.")
         #Try the formatting done at time of use to make sure unauthorized keys aren't in place.
         try:
             namespace = {'mention' : 'test', 'username' : 'test', 'server' : 'test', 'nl' : 'test', 'newline' : 'test'}
