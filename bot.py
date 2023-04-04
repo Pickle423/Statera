@@ -24,7 +24,7 @@ async def on_ready():
 @client.command()
 async def load(ctx, extension):
     if ctx.message.author.id != 267469338557153300:
-         return
+        return
     client.load_extension(f'cogs.{extension}')
     print(f"Successfully loaded cogs.{extension}")
 
