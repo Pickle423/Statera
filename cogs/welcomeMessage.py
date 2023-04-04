@@ -56,7 +56,7 @@ class WelcomeMessage(commands.Cog):
             namespace = {'mention' : 'test', 'username' : 'test', 'server' : 'test', 'nl' : 'test', 'newline' : 'test'}
             message.format(**namespace)
         except:
-            return await ctx.followup.send('Unauthorized keys used, you are limited to mention, username, and server.')
+            return await ctx.followup.send('Unauthorized keys used, you are limited to mention, username, newline, and server.')
         guilddata['channel'] = channel.id
         guilddata['message'] = message
         self.saveData(ctx.guild.id, guilddata)
