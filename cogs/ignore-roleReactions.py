@@ -38,7 +38,7 @@ class reactForRoles(commands.Cog):
         embedMessage = nextcord.Embed(title="React For Roles.", description="React to get your discord role.", color=0x0E8643)
         embedMessage.add_field(name=f"{nameOne}", value=f"React with {emojiOne} for the {nameOne} role.")
         embedMessage.add_field(name=f"{nameTwo}", value=f"React with {emojiTwo} for the {nameTwo} role.", inline=False)
-        embedMessage.set_footer(text="Kakapo written by Pickle423#0408, Dildo Sagbag#8107, Fletch#0617.")
+        embedMessage.set_footer(text="CHANGE TEXT")
 
         msg = await context.message.channel.send(embed=embedMessage)
 

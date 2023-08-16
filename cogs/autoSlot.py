@@ -1,4 +1,5 @@
 import nextcord, json, collections, os.path#, datetime, re
+from collections.abc import Mapping
 #from datetime import datetime
 from nextcord.ext import commands
 from typing import Optional
@@ -385,7 +386,7 @@ class autoSlot(commands.Cog):
 
     def update_dict(self, d, u):
         for k, v in u.items():
-            if isinstance(v, collections.Mapping):
+            if isinstance(v, Mapping):
                 default = v.copy()
                 default.clear()
                 r = self.update_dict(d.get(k, default), v)

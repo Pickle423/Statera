@@ -59,19 +59,24 @@ class miscCommands(commands.Cog):
         await context.message.channel.send(embed=mainEmbed)
 
     @commands.command(aliases=["d", "rolldice", "roll"])
-    async def dice(self, ctx, max, operator=None, *, operatornumber=None):
-        try:
-            dice=int(operator)
-            operatorisdicecount = True
-        except:
+    async def dice(self, ctx, max: int, operator=None, *, operatornumber: int=None):
+        if operator != None:
+            try:
+                dice=int(operator)
+                operatorisdicecount = True
+            except:
+                operatorisdicecount = False
+        else:
             operatorisdicecount = False
-        max = int(max)
-        if operatorisdicecount == True and operator > 10:
-            await ctx.send("Please limit the number of dice to 10.")
-            return
-        elif int(operatornumber) > 1000 or max > 1000:
-            await ctx.send("Please limit numbers to less than 1000.")
-            return
+        try:
+            if operatorisdicecount == True and operator > 10:
+                await ctx.send("Please limit the number of dice to 10.")
+                return
+            elif  max > 1000 or operatornumber > 1000:
+                await ctx.send("Please limit numbers to less than 1000.")
+                return
+        except:
+            pass
         if operatorisdicecount == True:
             whileloop = 0
             diceresults = []
@@ -82,13 +87,13 @@ class miscCommands(commands.Cog):
         elif operator == None:
             await ctx.send(f"Rolled 1d{max} {random.randrange(1, max)}")
         elif operator == '*':
-            await ctx.send(f"Rolled 1d{max} {random.randrange(1, max) * int(operatornumber)}")
+            await ctx.send(f"Rolled 1d{max} {random.randrange(1, max) * operatornumber}")
         elif operator == '+':
-            await ctx.send(f"Rolled 1d{max} {random.randrange(1, max) + int(operatornumber)}")
+            await ctx.send(f"Rolled 1d{max} {random.randrange(1, max) + operatornumber}")
         elif operator == '-':
-            await ctx.send(f"Rolled 1d{max} {random.randrange(1, max) - int(operatornumber)}")
+            await ctx.send(f"Rolled 1d{max} {random.randrange(1, max) - operatornumber}")
         elif operator == '/':
-            await ctx.send(f"Rolled 1d{max} {random.randrange(1, max) / int(operatornumber)}")
+            await ctx.send(f"Rolled 1d{max} {random.randrange(1, max) / operatornumber}")
 
 def setup(client):
     client.add_cog(miscCommands(client))

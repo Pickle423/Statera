@@ -19,11 +19,10 @@ class Music(commands.Cog):
     async def connect_nodes(self):
         """Connect to our Lavalink nodes."""
         await self.client.wait_until_ready()
-
-        await wavelink.NodePool.create_node(bot=self.client,
-                                            host='127.0.0.1',
-                                            port=2333,
-                                            password="yoyoyo, it's me! mario!")
+        # Wavelink 2.0 has made connecting Nodes easier... Simply create each Node
+        # and pass it to NodePool.connect with the client/bot.
+        node: wavelink.Node = wavelink.Node(uri='http://localhost:2333', password="yoyoyo, it's me! mario!")
+        await wavelink.NodePool.connect(client=self, nodes=[node])
 
     @commands.Cog.listener()
     async def on_wavelink_node_ready(self, node: wavelink.Node):
@@ -74,7 +73,10 @@ class Music(commands.Cog):
             if vc.queue.is_empty and not vc.is_playing():
                 await vc.play(search)
                 await ctx.message.add_reaction('▶️')
-                await ctx.send(f'**Now playing:** `{vc.track.title}`')
+                try:
+                    await ctx.send(f'**Now playing:** `{vc.track.title}`')
+                except:
+                    await ctx.send(f'**Now playing:** `Failed to find title`')
             else:
                 await vc.queue.put_wait(search)
                 await ctx.message.add_reaction('▶️')
