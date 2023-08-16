@@ -1,10 +1,5 @@
 import nextcord
 from nextcord.ext import commands
-global muted
-my_file = open("muted.txt", "r")
-muted = my_file.readlines()
-my_file.close()
-print(muted)
 intents = nextcord.Intents.default()
 intents.members = True
 

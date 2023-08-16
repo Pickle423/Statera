@@ -22,15 +22,16 @@ class Music(commands.Cog):
         # Wavelink 2.0 has made connecting Nodes easier... Simply create each Node
         # and pass it to NodePool.connect with the client/bot.
         node: wavelink.Node = wavelink.Node(uri='http://localhost:2333', password="yoyoyo, it's me! mario!")
-        await wavelink.NodePool.connect(client=self, nodes=[node])
+        await wavelink.NodePool.connect(client=self.client, nodes=[node])
 
     @commands.Cog.listener()
     async def on_wavelink_node_ready(self, node: wavelink.Node):
         """Event fired when a node has finished connecting."""
-        print(f'Node: <{node.identifier}> is ready!')
+        print(f'Node: <{node.id}> is ready!')
 
     @commands.Cog.listener()
-    async def on_wavelink_track_end(self, player: wavelink.Player, track: wavelink.Track, reason):
+    async def on_wavelink_track_end(self, player: wavelink.Player, track=None, reason=None):
+        player = player.player
         if not player.queue.is_empty:
             next = player.queue.get()
             await player.play(next)
@@ -74,7 +75,7 @@ class Music(commands.Cog):
                 await vc.play(search)
                 await ctx.message.add_reaction('▶️')
                 try:
-                    await ctx.send(f'**Now playing:** `{vc.track.title}`')
+                    await ctx.send(f'**Now playing:** `{vc.current.title}`')
                 except:
                     await ctx.send(f'**Now playing:** `Failed to find title`')
             else:
@@ -86,7 +87,7 @@ class Music(commands.Cog):
             vc: wavelink.Player = ctx.voice_client
             await vc.resume()
             await ctx.message.add_reaction('▶️')
-            await ctx.send(f'**Resumed:** `{vc.track.title}`')
+            await ctx.send(f'**Resumed:** `{vc.current.title}`')
     
     @commands.command()
     async def skip(self, ctx: commands.Context):
@@ -155,16 +156,18 @@ class Music(commands.Cog):
             return
         #is_playing doesn't seem to work here, no clue why.
         try:
-            test = vc.source.title
+            test = vc.current.title
         except:
             await ctx.send("Nothing is currently playing!")
             return
         
-        seconds = vc.source.length
+        seconds = vc.current.length
+        seconds = seconds / 1000
         m, s = divmod(seconds, 60)
         m = int(m)
         s = int(s)
         secondspassed = vc.position
+        secondspassed = secondspassed / 1000
         mp, sp = divmod(secondspassed, 60)
         mp = int(mp)
         sp = int(sp)
@@ -182,9 +185,9 @@ class Music(commands.Cog):
             vc.queue.put_at_front(upcoming)
             upcomingt = upcoming.title
             upcomingu = upcoming.uri
-            fmt = f"\n__Now Playing__:\n[{vc.source.title}]({vc.source.uri})\n`{songposition}/{length}`\n__Up Next:__\n" + f"[{upcomingt}]({upcomingu})" + f"\n**{vc.queue.count} song(s) in queue**"
+            fmt = f"\n__Now Playing__:\n[{vc.current.title}]({vc.current.uri})\n`{songposition}/{length}`\n__Up Next:__\n" + f"[{upcomingt}]({upcomingu})" + f"\n**{vc.queue.count} song(s) in queue**"
         else:
-            fmt = f"\n__Now Playing__:\n[{vc.source.title}]({vc.source.uri})\n`{songposition}/{length}`\n__Up Next:__\n" + "Nothing" + f"\n**{vc.queue.count} song(s) in queue**"
+            fmt = f"\n__Now Playing__:\n[{vc.current.title}]({vc.current.uri})\n`{songposition}/{length}`\n__Up Next:__\n" + "Nothing" + f"\n**{vc.queue.count} song(s) in queue**"
         embed = nextcord.Embed(title=f'Currently Playing in {ctx.guild.name}', description=fmt, color=nextcord.Color.green())
         embed.set_footer(text=f"{ctx.author.display_name}", icon_url=ctx.author.avatar.url)
         await ctx.send(embed=embed)
