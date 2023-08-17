@@ -3,7 +3,7 @@ from nextcord.ext import commands, tasks
 
 autodisconnect = {}
 class Music(commands.Cog):
-    """Music cog to hold Wavelink related commands and listeners."""
+    """Music cog to hold wavelink related commands and listeners."""
 
     #def __init__(self, bot: commands.Bot):
     #    self.bot = bot
@@ -19,7 +19,7 @@ class Music(commands.Cog):
     async def connect_nodes(self):
         """Connect to our Lavalink nodes."""
         await self.client.wait_until_ready()
-        # Wavelink 2.0 has made connecting Nodes easier... Simply create each Node
+        # wavelink 2.0 has made connecting Nodes easier... Simply create each Node
         # and pass it to NodePool.connect with the client/bot.
         node: wavelink.Node = wavelink.Node(uri='http://localhost:2333', password="yoyoyo, it's me! mario!")
         await wavelink.NodePool.connect(client=self.client, nodes=[node])
