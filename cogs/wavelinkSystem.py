@@ -58,7 +58,7 @@ class Music(commands.Cog):
                 del autodisconnect[p]
 
     @commands.command(aliases=['continue','resume','re','res', 'p', 'unpause'])
-    async def play(self, ctx: commands.Context, *, search: wavelink.YouTubeTrack = None):
+    async def play(self, ctx: commands.Context, *, search: str = None):
         if search:
             #partial = wavelink.PartialTrack(query=search, cls=wavelink.YouTubeTrack)
             """Play a song with the given search query.
@@ -72,16 +72,34 @@ class Music(commands.Cog):
                 vc: wavelink.Player = ctx.voice_client
 
             if vc.queue.is_empty and not vc.is_playing():
-                await vc.play(search)
+                tracks = await wavelink.YouTubeTrack.search(search)
+                if not tracks:
+                    await ctx.send(f'No tracks found with query: `{search}`')
+                    return
+                try:
+                    track = tracks[0]
+                except:
+                    await ctx.send("Playlists are not supported.")
+                    return
+                await vc.play(track)
                 await ctx.message.add_reaction('▶️')
                 try:
                     await ctx.send(f'**Now playing:** `{vc.current.title}`')
                 except:
                     await ctx.send(f'**Now playing:** `Failed to find title`')
             else:
-                await vc.queue.put_wait(search)
+                tracks = await wavelink.YouTubeTrack.search(search)
+                if not tracks:
+                    await ctx.send(f'No tracks found with query: `{search}`')
+                    return
+                try:
+                    track = tracks[0]
+                except:
+                    await ctx.send("Playlists are not supported.")
+                    return
+                await vc.queue.put_wait(track)
                 await ctx.message.add_reaction('▶️')
-                await ctx.send(f'**Added to Queue:** `{search.title}`')
+                await ctx.send(f'**Added to Queue:** `{track.title}`')
 
         else:
             vc: wavelink.Player = ctx.voice_client
