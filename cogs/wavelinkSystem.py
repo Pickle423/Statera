@@ -1,6 +1,13 @@
 import nextcord, wavelink, datetime, time
 from nextcord.ext import commands, tasks
 
+class musicHelper:
+
+    # Convert a youtu.be link into a youtube.com link by splitting the original youtu.be link on slashes, 
+    # and then on ? to isolate the video id before putting it back into a youtube.com link.
+    def convertShort(search):
+        return (f"https://www.youtube.com/watch?v={search.split('/')[3].split('?')[0]}")
+
 autodisconnect = {}
 class Music(commands.Cog):
     """Music cog to hold wavelink related commands and listeners."""
@@ -70,6 +77,9 @@ class Music(commands.Cog):
                 await ctx.send(f'**Joined `{ctx.author.voice.channel}`**')
             else:
                 vc: wavelink.Player = ctx.voice_client
+
+            if "https://youtu.be/" in search:
+                search = musicHelper.convertShort(search)
 
             if vc.queue.is_empty and not vc.is_playing():
                 tracks = await wavelink.YouTubeTrack.search(search)
