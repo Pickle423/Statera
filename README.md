@@ -63,10 +63,10 @@ Rolls a die
 
 ##FAQ (We're lying no one's asked us anything):<br/>
 Why is the prefix ?:<br/>
-I don't know any bots that use it, a seletion option will be coming in the future.
+I don't know any bots that use it, a selection option will be coming in the future. Or the bot will transition entirely to slash commands, remains to be seen.
 
 Why is the slot functionality done with slash-commands, while others not?:<br/>
-Slash commands are 'encouraged' by discord, and eventually I'd like all of our commands to be slash commands.
+Slash commands are 'encouraged' by discord, and eventually I'd like all of our commands to be slash commands. They're easier to understand if you're using with a new bot.
 
 ## Invite link:
 https://discord.com/api/oauth2/authorize?client_id=1044392710695551058&permissions=8&scope=bot
