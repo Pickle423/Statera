@@ -63,18 +63,13 @@ Rolls a die
 
 ##FAQ (We're lying no one's asked us anything):<br/>
 Why is the prefix ?:<br/>
-I don't know any bots that use it, and I don't feel like coding a selection option right now. If you have a conflict, your options are to cope and/or pick a side you yellow-bellied fuck.
+I don't know any bots that use it, a seletion option will be coming in the future.
 
-Why is the slot functionality done with slash-commands, I hate slash-commands:<br/>
-I hate them too, but I felt like it.
-
-Your code sucks:<br/>
-Yeah. We're both novice python ""developers.""
-
-I hate this Fletch guy:<br/>
-So do I.
+Why is the slot functionality done with slash-commands, while others not?:<br/>
+Slash commands are 'encouraged' by discord, and eventually I'd like all of our commands to be slash commands.
 
 ## Invite link:
 https://discord.com/api/oauth2/authorize?client_id=1044392710695551058&permissions=8&scope=bot
 
-It needs admin to create the channels, if you just want it for the music system use vexera or something idk. I wouldn't trust me either.
+It needs admin to create the channels, if you just want it for the music system, do NOT grant it these permissions.
+If you do grant it these permissions, keep any roles it has below any secured roles, such as admin roles. This would prevent it from assigning critical roles in the event it was compromised. Follow this advice for all bots you use.
