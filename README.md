@@ -3,6 +3,7 @@ Discord bot meant as an easy-to-use version of Katalam's AutoSlot discord bot, a
 
 ## Features
 - Autoslot for Arma 3 and other slot-based mission games.
+- Automatic temporary voice channels.
 - Provides moderation commands for admins
 - Supports YouTube video to audio/music streaming
 - Provides miscellaneous commands for users
@@ -49,7 +50,7 @@ Set up a role selector message in the current channel
 `/shibe or ?dog ?doge?!doggeg ?shiba ?shibainu`<br />
 Posts a random Shiba Inu picture, courtesy of http://shibe.online/
 
-`(NOT RELEASED) ?help`<br/>
+`(IN PROGRESS, JOIN SUPPORT SERVER FOR READMES) ?help`<br/>
 provides the User with the purpose of different commands
 
 `?8ball`<br/>
@@ -66,7 +67,7 @@ Why is the prefix ?:<br/>
 I don't know any bots that use it, a selection option will be coming in the future. Or the bot will transition entirely to slash commands, remains to be seen.
 
 Why is the slot functionality done with slash-commands, while others not?:<br/>
-Slash commands are 'encouraged' by discord, and eventually I'd like all of our commands to be slash commands. They're easier to understand if you're using with a new bot.
+Slash commands are 'encouraged' by discord, and eventually I'd like all of our commands to be slash commands. They're easier to understand if you're using a new bot.
 
 ## Invite link:
 https://discord.com/api/oauth2/authorize?client_id=1044392710695551058&permissions=8&scope=bot
