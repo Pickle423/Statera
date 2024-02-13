@@ -54,9 +54,9 @@ class autoVoiceChannels(commands.Cog):
     async def cleaner(self):
         # Iterate through all created channels and clean them.
         for guildObjKey in self.VCGuilds:
-            for channelKey in self.VCGuilds[guildObjKey].created_voice_channels:
+            for channelKey in self.VCGuilds[guildObjKey].created_voice_channels.copy():
                 channel = await self.client.fetch_channel(self.VCGuilds[guildObjKey].created_voice_channels[channelKey])
-                if len(channel.members) <  1:
+                if len(channel.members) < 1:
                     await channel.delete()
                     self.VCGuilds[guildObjKey].created_voice_channels.pop(channelKey)
                     self.VCGuilds[guildObjKey].saveData()
