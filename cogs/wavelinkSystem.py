@@ -26,15 +26,16 @@ class Music(commands.Cog):
     async def connect_nodes(self):
         """Connect to our Lavalink nodes."""
         await self.client.wait_until_ready()
-        # wavelink 2.0 has made connecting Nodes easier... Simply create each Node
-        # and pass it to NodePool.connect with the client/bot.
-        node: wavelink.Node = wavelink.Node(uri='http://localhost:2333', password="yoyoyo, it's me! mario!")
-        await wavelink.NodePool.connect(client=self.client, nodes=[node])
+
+        nodes = [wavelink.Node(uri='http://localhost:2333', password="yoyoyo, it's me! mario!")]
+        # cache_capacity is EXPERIMENTAL. Turn it off by passing None
+        await wavelink.Pool.connect(nodes=nodes, client=self.client, cache_capacity=None)
+        wavelink.Player.autoplay = wavelink.AutoPlayMode.disabled
 
     @commands.Cog.listener()
     async def on_wavelink_node_ready(self, node: wavelink.Node):
         """Event fired when a node has finished connecting."""
-        print(f'Node: <{node.id}> is ready!')
+        print(f'Node: <{node.node.identifier}> is ready!')
 
     @commands.Cog.listener()
     async def on_wavelink_track_end(self, player: wavelink.Player, track=None, reason=None):
@@ -64,7 +65,7 @@ class Music(commands.Cog):
             elif p.is_playing() or not p.queue.is_empty:
                 del autodisconnect[p]
 
-    @commands.command(aliases=['continue','resume','re','res', 'p', 'unpause'])
+    @commands.command(aliases=['continue','resume','re','res', 'p'])
     async def play(self, ctx: commands.Context, *, search: str = None):
         if search:
             #partial = wavelink.PartialTrack(query=search, cls=wavelink.YouTubeTrack)
@@ -81,8 +82,8 @@ class Music(commands.Cog):
             if "https://youtu.be/" in search:
                 search = musicHelper.convertShort(search)
 
-            if vc.queue.is_empty and not vc.is_playing():
-                tracks = await wavelink.YouTubeTrack.search(search)
+            if vc.queue.is_empty and not vc.playing:
+                tracks = await wavelink.Playable.search(search)
                 if not tracks:
                     await ctx.send(f'No tracks found with query: `{search}`')
                     return
@@ -98,7 +99,7 @@ class Music(commands.Cog):
                 except:
                     await ctx.send(f'**Now playing:** `Failed to find title`')
             else:
-                tracks = await wavelink.YouTubeTrack.search(search)
+                tracks = await wavelink.Playable.search(search)
                 if not tracks:
                     await ctx.send(f'No tracks found with query: `{search}`')
                     return
@@ -113,7 +114,7 @@ class Music(commands.Cog):
 
         else:
             vc: wavelink.Player = ctx.voice_client
-            await vc.resume()
+            await vc.pause(not vc.paused)
             await ctx.message.add_reaction('▶️')
             await ctx.send(f'**Resumed:** `{vc.current.title}`')
     
@@ -129,10 +130,10 @@ class Music(commands.Cog):
             await ctx.send("Queue is empty.")
 
 
-    @commands.command(aliases=['ps'])
+    @commands.command(aliases=['ps', 'unpause'])
     async def pause(self, ctx: commands.Context):
         vc: wavelink.Player = ctx.voice_client
-        await vc.pause()
+        await vc.pause(not vc.paused)
         await ctx.message.add_reaction('⏸️')
 
     @commands.command()
