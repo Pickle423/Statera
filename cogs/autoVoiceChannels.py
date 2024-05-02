@@ -114,17 +114,19 @@ class autoVoiceChannels(commands.Cog):
             # Dump data now that a new channel has been created.
             guildObj.saveData()
 
-    @commands.command()
-    @commands.has_permissions(administrator=True)
+    @nextcord.slash_command(name='setvcsettings',description="Admin Only, gracefully destroy a channel. Not necessary, mostly present for debugging.")
     async def destroy(self, ctx, *, channel_name):
+        if not ctx.user.guild_permissions.administrator:
+            return await ctx.response.send_message("You are not authorized to run this command.", ephemeral=True)
         channel_name = nextcord.utils.get(ctx.guild.voice_channels, name=channel_name)
         await channel_name.delete()
         self.VCGuilds[ctx.guild.id].created_voice_channels.pop(channel_name.id)
         self.VCGuilds[ctx.guild.id].saveData()
 
     @nextcord.slash_command(name='setvcsettings',description="Admin Only, sets the settings for the automatic voice channel system.")
-    @commands.has_permissions(administrator=True)
     async def setVcSettings(self, ctx, newsessionchannel: Optional[nextcord.VoiceChannel] = nextcord.SlashOption(required=False), maxchannels:  Optional[int] = nextcord.SlashOption(required=False), renameon:  Optional[bool] = nextcord.SlashOption(required=False), renameadmin:  Optional[bool] = nextcord.SlashOption(required=False), lockedon:  Optional[bool] = nextcord.SlashOption(required=False), lockedadmin:  Optional[bool] = nextcord.SlashOption(required=False)):
+        if not ctx.user.guild_permissions.administrator:
+            return await ctx.response.send_message("You are not authorized to run this command.", ephemeral=True)
         # Ensure auto-VC has been setup already.
         if ctx.guild_id not in self.VCGuilds:
             return await ctx.response.send_message("AutoVC has not been initialized on this server.")
@@ -155,80 +157,84 @@ class autoVoiceChannels(commands.Cog):
 
 
     @nextcord.slash_command(name='setupvc',description="Admin Only, sets up the autoVC cog for this server.")
-    @commands.has_permissions(administrator=True)
     async def setUpVc(self, ctx, newsessionchannel: nextcord.VoiceChannel):
+        if not ctx.user.guild_permissions.administrator:
+            return await ctx.response.send_message("You are not authorized to run this command.", ephemeral=True)
         if ctx.guild.id in self.VCGuilds:
             del self.VCGuilds[ctx.guild.id]
         self.VCGuilds[ctx.guild.id] = vcGuild(ctx.guild.id, newsessionchannel.id, ctx.channel.id)
         self.VCGuilds[ctx.guild.id].saveData()
         await ctx.response.send_message("The Auto-Voice channels feature has been enabled in this discord!")
 
-    @commands.command()
-    async def limit(self, ctx, limiter):
-        if not self.VCGuilds[ctx.guild.id].settings['lockedOn'] or (self.VCGuilds[ctx.guild.id].settings['lockedAdmin'] and not ctx.author.guild_permissions.administrator):
-            return await ctx.send("This server's settings have prevented you from setting a channel limit.")
+    @nextcord.slash_command(name='limit',description="Set a static limit for this channel.")
+    async def limit(self, ctx, limiter: str):
+        if not self.VCGuilds[ctx.guild.id].settings['lockedOn'] or (self.VCGuilds[ctx.guild.id].settings['lockedAdmin'] and not ctx.user.guild_permissions.administrator):
+            return await ctx.response.send_message("This server's settings have prevented you from setting a channel limit.")
         for channel in self.VCGuilds[ctx.guild.id].created_voice_channels:
-            if self.VCGuilds[ctx.guild.id].created_voice_channels[channel] == ctx.message.author.voice.channel.id:
+            if self.VCGuilds[ctx.guild.id].created_voice_channels[channel] == ctx.user.voice.channel.id:
                 break
         else:
-            await ctx.send("Permanent Discord channels cannot be limited.")
+            await ctx.response.send_message("Permanent Discord channels cannot be limited.")
             return
         if  limiter.lower() == 'none' or int(limiter) < 1:
-            await ctx.message.author.voice.channel.edit(user_limit=0)
+            await ctx.user.voice.channel.edit(user_limit=0)
         else:
             limiter = int(limiter)
-            await ctx.message.author.voice.channel.edit(user_limit=limiter)
+            await ctx.user.voice.channel.edit(user_limit=limiter)
+        await ctx.response.send_message("Channel limit updated!")
 
-    @commands.command()
+    @nextcord.slash_command(name='lock',description="Dynamically lock a channel")
     async def lock(self, ctx):
-        # TODO: Lock function needs new way to determine if it's a permanent channel. A for-break is not ideal.
-        if not self.VCGuilds[ctx.guild.id].settings['lockedOn'] or (self.VCGuilds[ctx.guild.id].settings['lockedAdmin'] and not ctx.author.guild_permissions.administrator):
-            return await ctx.send("This server's settings have prevented you from locking this channel.")
-        authors_voice_channel = ctx.message.author.voice.channel
+        # TODO: Lock function should get a new way to determine if it's a permanent channel. A for-break is not ideal.
+        if not self.VCGuilds[ctx.guild.id].settings['lockedOn'] or (self.VCGuilds[ctx.guild.id].settings['lockedAdmin'] and not ctx.user.guild_permissions.administrator):
+            return await ctx.response.send_message("This server's settings have prevented you from locking this channel.")
+        authors_voice_channel = ctx.user.voice.channel
         if authors_voice_channel.id in self.VCGuilds[ctx.guild.id].locked_voice_channels:
-            await ctx.send("Channel already locked.")
+            await ctx.response.send_message("Channel already locked.")
             return
         for channel in self.VCGuilds[ctx.guild.id].created_voice_channels:
             if self.VCGuilds[ctx.guild.id].created_voice_channels[channel] == authors_voice_channel.id:
                 break
         else:
-            await ctx.send("Permanent Discord channels cannot be locked.")
+            await ctx.response.send_message("Permanent Discord channels cannot be locked.")
             return
         
         self.VCGuilds[ctx.guild.id].locked_voice_channels.append(authors_voice_channel.id)
         await authors_voice_channel.edit(user_limit=len(authors_voice_channel.members))
         self.VCGuilds[ctx.guild.id].saveData()
+        await ctx.response.send_message("Channel locked!")
 
-    @commands.command()
+    @nextcord.slash_command(name='unlock',description="Unlock a channel")
     async def unlock(self, ctx):
-        if (self.VCGuilds[ctx.guild.id].settings['lockedAdmin'] and not ctx.author.guild_permissions.administrator):
+        if (self.VCGuilds[ctx.guild.id].settings['lockedAdmin'] and not ctx.user.guild_permissions.administrator):
             return await ctx.send("This server requires you to be an admin to unlock a channel.")
-        authors_voice_channel = ctx.message.author.voice.channel
+        authors_voice_channel = ctx.user.voice.channel
         if (authors_voice_channel.id in self.VCGuilds[ctx.guild.id].locked_voice_channels):
             self.VCGuilds[ctx.guild.id].locked_voice_channels.remove(authors_voice_channel.id)
             await authors_voice_channel.edit(user_limit=0)
             self.VCGuilds[ctx.guild.id].saveData()
+            await ctx.response.send_message("Channel unlocked!")
 
-    @commands.command(aliases=['ren', 'rn'])
-    async def rename(self, ctx, *, new_name):
-        if not self.VCGuilds[ctx.guild.id].settings['renameOn'] or (self.VCGuilds[ctx.guild.id].settings['renameAdmin'] and not ctx.author.guild_permissions.administrator):
-            return await ctx.send("This server's settings have prevented you from renaming this channel.")
-        authors_voice_channel = ctx.message.author.voice.channel
+    @nextcord.slash_command(name='rename',description="Rename a channel")
+    async def rename(self, ctx, new_name: str):
+        if not self.VCGuilds[ctx.guild.id].settings['renameOn'] or (self.VCGuilds[ctx.guild.id].settings['renameAdmin'] and not ctx.user.guild_permissions.administrator):
+            return await ctx.response.send_message("This server's settings have prevented you from renaming this channel.")
+        authors_voice_channel = ctx.user.voice.channel
         for channel in self.VCGuilds[ctx.guild.id].created_voice_channels:
             if self.VCGuilds[ctx.guild.id].created_voice_channels[channel] == authors_voice_channel.id:
                 break
         else:
-            await ctx.send("Permanent Discord channels cannot be locked.")
+            await ctx.response.send_message("Permanent Discord channels cannot be locked.")
             return
         if len(new_name) > 19:
-            await ctx.send('New name is too long! Please limit it to 19 characters or less.')
+            await ctx.response.send_message('New name is too long! Please limit it to 19 characters or less.')
             return
         number = int(re.search(r'\d+', authors_voice_channel.name).group())
         try:
             await authors_voice_channel.edit(name=f"#{number} [{new_name}]")
-            await ctx.send(f"Channel renamed to #{number} [{new_name}]")
+            await ctx.response.send_message(f"Channel renamed to #{number} [{new_name}]")
         except:
-            await ctx.send('An error was encountered attempting to edit the channel name.')
+            await ctx.response.send_message('An error was encountered attempting to edit the channel name.')
 
         
 

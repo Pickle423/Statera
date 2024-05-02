@@ -8,13 +8,10 @@ class Moderation(commands.Cog):
     def __init__(self, client):
         self.client = client
     
-    async def cog_check(self, ctx):
-        #Check if user has manage messages permissions
-        return ctx.author.guild_permissions.manage_messages
-    
     @nextcord.slash_command(name='clean',description="Cleans the number of messages specified.")
-    @commands.has_permissions(administrator=True)
     async def clean(self, ctx, amount: int):
+        if not ctx.user.guild_permissions.administrator:
+            return await ctx.response.send_message("You are not authorized to run this command.", ephemeral=True)
         await ctx.channel.purge(limit=amount)
         await ctx.response.send_message("Messages have been removed!", delete_after=5)
 
