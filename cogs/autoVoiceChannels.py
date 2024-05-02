@@ -15,11 +15,6 @@ class vcGuild:
         #TODO Settings have been added, monitor for likely bugs and exploits.
         # Settings should include: Max channels, rename on/off, rename channels admin-only, locked channels on/off, locked channels admin-only.
 
-    def __del__(self):
-        origin = os.path.abspath('').replace('\\', "/")
-        os.remove(f'{origin}/jsons/VCServers/{self.guildId}-voiceChannel.json')
-        print(f"{self.guildId}'s autoVC object and file destroyed.")
-
     # Dumps data to json
     def saveData(self):
         origin = os.path.abspath('')
