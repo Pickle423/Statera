@@ -33,8 +33,9 @@ class WelcomeMessage(commands.Cog):
 
 
     @nextcord.slash_command(name='welcome',description="Set's the server's welcome message.")
-    @commands.has_permissions(administrator=True)
     async def setMessage(self, ctx, channel: str, message: str, role: Optional[str] = nextcord.SlashOption(required=False)):
+        if not ctx.user.guild_permissions.administrator:
+            return await ctx.response.send_message("You are not authorized to run this command.", ephemeral=True)
         if len(message) > 1500:
             return await ctx.response.send_message('Message is too long, please limit yourself to 1500 characters.')
         await ctx.response.defer()

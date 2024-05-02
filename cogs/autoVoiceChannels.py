@@ -114,7 +114,7 @@ class autoVoiceChannels(commands.Cog):
             # Dump data now that a new channel has been created.
             guildObj.saveData()
 
-    @nextcord.slash_command(name='setvcsettings',description="Admin Only, gracefully destroy a channel. Not necessary, mostly present for debugging.")
+    @nextcord.slash_command(name='destroy',description="Admin Only, gracefully destroy a channel. Not necessary, mostly present for debugging.")
     async def destroy(self, ctx, *, channel_name):
         if not ctx.user.guild_permissions.administrator:
             return await ctx.response.send_message("You are not authorized to run this command.", ephemeral=True)

@@ -22,8 +22,9 @@ class autoSlot(commands.Cog):
                     self.database = self.update_dict(self.database, {parts[0] : json.load(json_file)})
 
     @nextcord.slash_command(name='addmission',description="Admin Only, create missions.")
-    @commands.has_permissions(administrator=True)
     async def addMission(self, ctx, mission_name: str, mission_timestamp: Optional[int] = nextcord.SlashOption(required=False)):
+        if not ctx.user.guild_permissions.administrator:
+            return await ctx.response.send_message("You are not authorized to run this command.", ephemeral=True)
         await ctx.response.defer()
         if mission_timestamp == None:
             mission_timestamp = 1
@@ -56,8 +57,9 @@ class autoSlot(commands.Cog):
         await ctx.followup.send(reply + f"You have added a new mission. Your mission ID for {mission_name_converted} is: {mission_id}")
 
     @nextcord.slash_command(name='addslots',description="Admin Only, add slots to an existing mission.")
-    @commands.has_permissions(administrator=True)
     async def addSlots(self, ctx, mission_id : str, *, slots):
+        if not ctx.user.guild_permissions.administrator:
+            return await ctx.response.send_message("You are not authorized to run this command.", ephemeral=True)
         await ctx.response.defer()
         # Check if mission ID exists
         try:
@@ -374,8 +376,9 @@ class autoSlot(commands.Cog):
         self.saveData(str(ctx.guild_id))
 
     @nextcord.slash_command(name='rslotall',description="Admin Only. Remove all assignments from all slot.")
-    @commands.has_permissions(administrator=True)
     async def rslotAll(self, ctx, mission_id):
+        if not ctx.user.guild_permissions.administrator:
+            return await ctx.response.send_message("You are not authorized to run this command.", ephemeral=True)
         await ctx.response.defer()
         # Check if mission exists
         if self.database[str(ctx.guild_id)]['operations'].get(mission_id) == None:
@@ -411,8 +414,9 @@ class autoSlot(commands.Cog):
 
     # Remove mission
     @nextcord.slash_command(name='deletemission',description="Admin only, delete a mission.")
-    @commands.has_permissions(administrator=True)
     async def deleteMission(self, ctx, mission_id : str):
+        if not ctx.user.guild_permissions.administrator:
+            return await ctx.response.send_message("You are not authorized to run this command.", ephemeral=True)
         await ctx.response.defer()
         # Check if mission exists
         if self.database[str(ctx.guild_id)]['operations'].get(mission_id) == None:
