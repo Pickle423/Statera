@@ -3,6 +3,8 @@ import nextcord, os, logging
 from dotenv import load_dotenv
 from nextcord.ext import commands, tasks
 intents = nextcord.Intents.all()
+intents.presences = False
+intents.message_content = False
 
 # is a .env file inside the folder to leave the token for the bot outside the git
 load_dotenv()
