@@ -1,6 +1,9 @@
 # bot.py
 import nextcord, os, logging
+import bson
 from dotenv import load_dotenv
+from pymongo import MongoClient
+from pymongo.server_api import ServerApi
 from nextcord.ext import commands, tasks
 intents = nextcord.Intents.all()
 intents.presences = False
@@ -16,10 +19,25 @@ load_dotenv()
 # bot commands have a prefix so all messages that start with the prefix will trigger the bot commands
 client = commands.Bot(command_prefix='?', intents=intents, help_command = None, case_insensitive=True)
 
+MONGODB_URI = os.environ['MONGODB_URI']
+dbClient = MongoClient(MONGODB_URI, server_api=ServerApi('1'))
+
+for db_info in dbClient.list_database_names():
+   print(db_info)
+
+db = dbClient['ServerData']
+
 # when the bot is initialized it will print has connected to the terminal
 @client.event
 async def on_ready():
     print(f"{client.user.name} has connected to Discord!")
+    # Retrieve each cog and pass them the database
+    welcomeMessage = client.get_cog('WelcomeMessage')
+    voiceChannels = client.get_cog('autoVoiceChannels')
+    autoSlot = client.get_cog('autoSlot')
+    welcomeMessage.db = db['welcomeMessage']
+    voiceChannels.db = db['autoVoiceChannels']
+    autoSlot.db = db['autoSlot']
 
 #Cogs Loader
 @client.command()

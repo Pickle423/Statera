@@ -9,10 +9,12 @@ class autoSlot(commands.Cog):
     def __init__(self, client):
         self.client = client
         self.database = dict()
+        self.db = None
 
     @commands.Cog.listener()
     async def on_ready(self):
         #Read the pre-existing JSON
+        ''' Replaced by MongoDB
         origin = os.path.abspath('')
         origin = origin.replace('\\', "/")
         for file in os.listdir(f'{origin}/jsons/ASServers'):
@@ -20,6 +22,13 @@ class autoSlot(commands.Cog):
                 parts = file.split('-')
                 with open(f'{origin}/jsons/ASServers/{file}') as json_file:
                     self.database = self.update_dict(self.database, {parts[0] : json.load(json_file)})
+        '''
+        if self.db == None:
+            print("FAILED TO FIND AUTOSLOT DATABASE, RECTIFY BEFORE LAUNCHING")
+            return
+        for guildjson in self.db.find():
+            guildjson.pop('_id', None)
+            self.database = self.update_dict(self.database, {guildjson['serverId'] : json.load(guildjson)})
 
     @nextcord.slash_command(name='addmission',description="Admin Only, create missions.")
     async def addMission(self, ctx, mission_name: str, mission_timestamp: Optional[int] = nextcord.SlashOption(required=False)):
@@ -451,10 +460,15 @@ class autoSlot(commands.Cog):
 
     # Dumps data to autoSlot.json
     def saveData(self, server):
+        ''' Replaced by mongoDB
         origin = os.path.abspath('')
         origin = origin.replace('\\', "/")
         with open(f'{origin}/jsons/ASServers/{server}-autoSlot.json', 'w') as f:
             json.dump(self.database[server], f)
+        '''
+        data = self.database[server]
+        data['serverId'] = server
+        self.db.replace_one({'serverId' : server}, self.database[server], upsert=True)
 
     #Convert to produce embed, with fields acting as group. Character limit is 1024, so limit groups to be 500.
     def embedGroupsToRoster(self,ctx, mission_id, group_dict):

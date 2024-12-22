@@ -16,25 +16,31 @@ class vcGuild:
         # Settings should include: Max channels, rename on/off, rename channels admin-only, locked channels on/off, locked channels admin-only.
 
     # Dumps data to json
-    def saveData(self):
+    def saveData(self, db):
+        ''' Replaced by MongoDB
         origin = os.path.abspath('')
         origin = origin.replace('\\', "/")
         server = {'newSession' : self.newSession, 'locked_voice_channels' : self.locked_voice_channels, 'created_voice_channels' : self.created_voice_channels, 'textChannel' : self.textChannel, 'settings' : self.settings}
 
         with open(f'{origin}/jsons/VCServers/{self.guildId}-voiceChannel.json', 'w') as f:
             json.dump(server, f)
+        '''
+        server = {'serverId' : self.guildId, 'newSession' : self.newSession, 'locked_voice_channels' : self.locked_voice_channels, 'created_voice_channels' : self.created_voice_channels, 'textChannel' : self.textChannel, 'settings' : self.settings}
+        db.replace_one({'serverId' : self.guildId}, server, upsert=True)
 
 #autoVoiceChannels Cog
 class autoVoiceChannels(commands.Cog):
     def __init__(self, client):
         self.client = client
         self.VCGuilds = {}
+        self.db = None
         # Start the cleaner at cog load
         self.cleaner.start()
     
     @commands.Cog.listener()
     async def on_ready(self):
         #Read the pre-existing JSON
+        ''' Replaced by MongoDB
         origin = os.path.abspath('')
         origin = origin.replace('\\', "/")
         for file in os.listdir(f'{origin}/jsons/VCServers'):
@@ -43,7 +49,14 @@ class autoVoiceChannels(commands.Cog):
                 with open(f'{origin}/jsons/VCServers/{file}') as json_file:
                     guildjson = json.load(json_file)
                     self.VCGuilds[int(parts[0])] = vcGuild(parts[0], guildjson['newSession'], guildjson['textChannel'], guildjson['locked_voice_channels'], guildjson['created_voice_channels'], guildjson['settings'])
-    
+        '''
+        if self.db == None:
+            print("FAILED TO FIND VOICE CHANNELS DATABASE, RECTIFY BEFORE LAUNCHING")
+            return
+        for guildjson in self.db.find():
+            self.VCGuilds[guildjson['serverId']] = vcGuild(guildjson['serverId'], guildjson['newSession'], guildjson['textChannel'], guildjson['locked_voice_channels'], guildjson['created_voice_channels'], guildjson['settings'])
+        
+
     # Check and delete channels with less than 1 members every 5 mins
     @tasks.loop(minutes=5)
     async def cleaner(self):
@@ -54,7 +67,7 @@ class autoVoiceChannels(commands.Cog):
                 if len(channel.members) < 1:
                     await channel.delete()
                     self.VCGuilds[guildObjKey].created_voice_channels.pop(channelKey)
-                    self.VCGuilds[guildObjKey].saveData()
+                    self.VCGuilds[guildObjKey].saveData(self.db)
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
@@ -107,7 +120,7 @@ class autoVoiceChannels(commands.Cog):
             await member.move_to(created_channel)
 
             # Dump data now that a new channel has been created.
-            guildObj.saveData()
+            guildObj.saveData(self.db)
 
     @nextcord.slash_command(name='destroy',description="Admin Only, gracefully destroy a channel. Not necessary, mostly present for debugging.")
     async def destroy(self, ctx, *, channel_name):
@@ -116,7 +129,7 @@ class autoVoiceChannels(commands.Cog):
         channel_name = nextcord.utils.get(ctx.guild.voice_channels, name=channel_name)
         await channel_name.delete()
         self.VCGuilds[ctx.guild.id].created_voice_channels.pop(channel_name.id)
-        self.VCGuilds[ctx.guild.id].saveData()
+        self.VCGuilds[ctx.guild.id].saveData(self.db)
 
     @nextcord.slash_command(name='setvcsettings',description="Admin Only, sets the settings for the automatic voice channel system.")
     async def setVcSettings(self, ctx, newsessionchannel: Optional[nextcord.VoiceChannel] = nextcord.SlashOption(required=False), maxchannels:  Optional[int] = nextcord.SlashOption(required=False), renameon:  Optional[bool] = nextcord.SlashOption(required=False), renameadmin:  Optional[bool] = nextcord.SlashOption(required=False), lockedon:  Optional[bool] = nextcord.SlashOption(required=False), lockedadmin:  Optional[bool] = nextcord.SlashOption(required=False)):
@@ -146,7 +159,7 @@ class autoVoiceChannels(commands.Cog):
                 continue
             guildObj.settings[setting] = settings[setting]
 
-        guildObj.saveData()
+        guildObj.saveData(self.db)
 
         await ctx.followup.send("VC settings have been updated.")
 
@@ -158,7 +171,7 @@ class autoVoiceChannels(commands.Cog):
         if ctx.guild.id in self.VCGuilds:
             del self.VCGuilds[ctx.guild.id]
         self.VCGuilds[ctx.guild.id] = vcGuild(ctx.guild.id, newsessionchannel.id, ctx.channel.id)
-        self.VCGuilds[ctx.guild.id].saveData()
+        self.VCGuilds[ctx.guild.id].saveData(self.db)
         await ctx.response.send_message("The Auto-Voice channels feature has been enabled in this discord!")
 
     @nextcord.slash_command(name='limit',description="Set a static limit for this channel.")
@@ -196,7 +209,7 @@ class autoVoiceChannels(commands.Cog):
         
         self.VCGuilds[ctx.guild.id].locked_voice_channels.append(authors_voice_channel.id)
         await authors_voice_channel.edit(user_limit=len(authors_voice_channel.members))
-        self.VCGuilds[ctx.guild.id].saveData()
+        self.VCGuilds[ctx.guild.id].saveData(self.db)
         await ctx.response.send_message("Channel locked!")
 
     @nextcord.slash_command(name='unlock',description="Unlock a channel")
@@ -207,7 +220,7 @@ class autoVoiceChannels(commands.Cog):
         if (authors_voice_channel.id in self.VCGuilds[ctx.guild.id].locked_voice_channels):
             self.VCGuilds[ctx.guild.id].locked_voice_channels.remove(authors_voice_channel.id)
             await authors_voice_channel.edit(user_limit=0)
-            self.VCGuilds[ctx.guild.id].saveData()
+            self.VCGuilds[ctx.guild.id].saveData(self.db)
             await ctx.response.send_message("Channel unlocked!")
 
     @nextcord.slash_command(name='rename',description="Rename a channel")

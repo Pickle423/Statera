@@ -1,22 +1,35 @@
 import nextcord, os, json
 from nextcord.ext import commands
 from typing import Optional
+import bson
 
 #welcomeMessage Cog
 class WelcomeMessage(commands.Cog):
     
     def __init__(self, client):
         self.client = client
-    
+        self.db = None
+
     @commands.Cog.listener()
     async def on_member_join(self, member):
         origin = os.path.abspath('')
         origin = origin.replace('\\', "/")
+        ''' Replacing with mongoDB
         if f"{member.guild.id}-welcome.json" in os.listdir(f'{origin}/jsons/WMServers'):
             with open(f'{origin}/jsons/WMServers/{member.guild.id}-welcome.json') as json_file:
                 guilddata = json.load(json_file)
         else:
             return
+        '''
+        if self.db == None:
+            print("No database found")
+            return
+
+        guilddata = self.db.find_one({'serverId': member.guild.id})
+
+        if guilddata == None:
+            return
+
         channel = self.client.get_channel(guilddata['channel'])
         message = guilddata['message']
         try:
@@ -65,10 +78,15 @@ class WelcomeMessage(commands.Cog):
 
     # Dumps data to json
     def saveData(self, server, data):
+        ''' Converted to MongoDB
         origin = os.path.abspath('')
         origin = origin.replace('\\', "/")
         with open(f'{origin}/jsons/WMServers/{server}-welcome.json', 'w') as f:
             json.dump(data, f)
+        '''
+        data['serverId'] = server
+        self.db.replace_one({'serverId' : server}, data, upsert=True)
+
     
 def setup(client):
     client.add_cog(WelcomeMessage(client))
