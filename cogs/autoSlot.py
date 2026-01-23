@@ -28,7 +28,7 @@ class autoSlot(commands.Cog):
             return
         for guildjson in self.db.find():
             guildjson.pop('_id', None)
-            self.database = self.update_dict(self.database, {guildjson['serverId'] : json.load(guildjson)})
+            self.database = self.update_dict(self.database, {guildjson['serverId'] : guildjson})
 
     @nextcord.slash_command(name='addmission',description="Admin Only, create missions.")
     async def addMission(self, ctx, mission_name: str, mission_timestamp: Optional[int] = nextcord.SlashOption(required=False)):
