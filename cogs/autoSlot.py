@@ -166,8 +166,13 @@ class autoSlot(commands.Cog):
             view.add_item(rslotbutton)
 
         # If previous roster exists, edit it with the embed_roster_message
-        if await roster_channel.history().get(author__id = self.client.user.id):
-            previous_roster_message = await roster_channel.history().get(author__id = self.client.user.id)
+        previous_roster_message = None
+        async for message in channel.history(limit=200):
+            if message.author == self.client.user:
+                previous_roster_message = message
+                break
+
+        if previous_roster_message:
             await previous_roster_message.edit(embed=embed_roster_message, view=view)
         # Else, just send the embed_roster_message
         else:
